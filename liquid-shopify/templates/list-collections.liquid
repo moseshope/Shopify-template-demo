@@ -1,0 +1,58 @@
+<!-- /templates/list-collections.liquid -->
+{% comment %}
+  This page represents the /collections and /products pages.
+{% endcomment %}
+
+{% assign collection_count = 0 %}
+{% assign isEmpty = true %}
+
+{% comment %}
+  Count how many collections we have to show
+{% endcomment %}
+{% for collection in collections %}
+  {% unless collection.handle == 'frontpage' %}
+    {% assign collection_count = collection_count | plus: 1 %}
+  {% endunless %}
+{% endfor %}
+
+{% if collection_count > 0 %}
+  {% assign isEmpty = false %}
+{% endif %}
+
+<h1>{{ page_title }}</h1>
+
+<div class="grid grid--uniform" role="list">
+  {% if linklists.all-collections.links.size > 0 %}
+    {% for link in linklists.all-collections.links %}
+      {% assign collection = link.object %}
+      {% include 'collection-grid-item' %}
+    {% endfor %}
+  {% else %}
+    {% for collection in collections %}
+      {% unless collection.handle == 'frontpage' %}
+        {% include 'collection-grid-item' %}
+      {% endunless %}
+    {% endfor %}
+  {% endif %}
+
+  {% if isEmpty %}
+    {% comment %}
+      Add default collections to help with onboarding
+    {% endcomment %}
+    <div class="grid__item">
+      <div class="grid grid--uniform helper-content">
+        {% assign collection_index = 1 %}
+        {% for i in (1..6) %}
+          <div class="grid__item small--one-half medium-up--one-third text-center">
+            <a href="/admin/collections" class="grid__image">
+              {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+              {{ 'collection-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+            </a>
+            <div class="product__title"><a href="/admin/collections">{{ 'homepage.onboarding.collection_title' | t }}</a></div>
+          </div>
+          {% assign collection_index = collection_index | plus: 1 %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>

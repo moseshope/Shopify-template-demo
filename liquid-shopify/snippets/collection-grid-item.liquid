@@ -1,0 +1,20 @@
+{% unless grid_item_width %}
+  {% assign grid_item_width = 'medium-up--one-third small--one-half' %}
+{% endunless %}
+
+{% assign alt = collection.title | escape %}
+{% capture title %}{{ 'collections.general.link_title' | t: title: alt }}{% endcapture %}
+
+<div class="collection grid__item {{ grid_item_width }} slide-up-animation animated" role="listitem">
+  <a href="{{ collection.url }}" class="collection__image" title="{{ title }}" >
+    {% if collection.image %}
+      <img src="{{ collection | img_url: 'large' }}" alt="{{ alt }}">
+    {% else %}
+      <img src="{{ collection.products.first | img_url: 'large' }}" alt="{{ alt }}">
+    {% endif %}
+  </a>
+
+  <div class="collection__title text-center">
+    <a href="{{ collection.url }}" title="{{ title }}" >{{ collection.title }}</a>
+  </div>
+</div>

@@ -1,0 +1,134 @@
+<style>
+  .site-header__logo {
+    width: {{ section.settings.logo_max_width | default: '150' | remove: 'px' | append: 'px'}};
+  }
+</style>
+
+<div class="top-bar grid">
+
+  <div class="grid__item medium-up--one-fifth small--one-half">
+    <div class="top-bar__search">
+      <a href="/search" class="medium-up--hide">
+        {% include 'icon-search' %}
+      </a>
+      <form action="/search" method="get" class="search-bar small--hide" role="search">
+        {% comment %}<input type="hidden" name="type" value="product">{% endcomment %}
+        <button type="submit" class="search-bar__submit">
+          {% include 'icon-search' %}
+          <span class="icon__fallback-text">{{ 'general.search.submit' | t }}</span>
+        </button>
+        <input type="search" name="q" class="search-bar__input" value="{{ search.terms | escape }}" placeholder="{{ 'general.search.placeholder' | t }}" aria-label="{{ 'general.search.placeholder' | t }}">
+      </form>
+    </div>
+  </div>
+
+  {% if shop.customer_accounts_enabled %}
+    <div class="grid__item medium-up--two-fifths small--hide">
+      <span class="customer-links small--hide">
+        {% if customer %}
+          {% if customer.first_name != blank %}
+            {% capture first_name %}<a href="/account">{{ customer.first_name }}</a>{% endcapture %}
+            {{ 'layout.customer.logged_in_as_html' | t: first_name: first_name }}
+          {% else %}
+            <a href="/account">{{ 'layout.customer.account' | t }}</a>
+          {% endif %}
+          <span class="vertical-divider"></span>
+          {{ 'layout.customer.log_out' | t | customer_logout_link }}
+        {% else %}
+          {{ 'layout.customer.log_in' | t | customer_login_link }}
+          <span class="vertical-divider"></span>
+          {{ 'layout.customer.create_account' | t | customer_register_link }}
+        {% endif %}
+      </span>
+    </div>
+  {% endif %}
+
+  <div class="grid__item {% if shop.customer_accounts_enabled %} medium-up--two-fifths {% else %} medium-up--four-fifths {% endif %} small--one-half text-right">
+    <a href="/cart" class="site-header__cart">
+      {% include 'icon-cart' %}
+      <span class="small--hide">
+        {{ 'layout.cart.title' | t }}
+        (<span id="CartCount">{{ cart.item_count }}</span>)
+      </span>
+    </a>
+    <span class="vertical-divider small--hide"></span>
+    <a href="/cart" class="site-header__cart small--hide">
+      {{ 'cart.general.checkout' | t }}
+    </a>
+  </div>
+</div>
+
+<hr class="small--hide hr--border">
+
+<header class="site-header grid medium-up--grid--table" role="banner">
+  <div class="grid__item small--text-center">
+    <div itemscope itemtype="http://schema.org/Organization">
+      {% comment %}
+        Use the uploaded logo from theme settings if enabled.
+        Site name uses `h1` tag on homepage, div on other pages.
+      {% endcomment %}
+      {% if section.settings.logo %}
+        <a href="/" itemprop="url">
+          {% capture image_size %}{{ section.settings.logo_max_width }}x{% endcapture %}
+          <img class="site-header__logo" src="{{ section.settings.logo | img_url: image_size }}"
+          srcset="{{ section.settings.logo | img_url: image_size }} 1x, {{ section.settings.logo | img_url: image_size, scale: 2 }} 2x"
+          alt="{{ section.settings.logo.alt | default: shop.name }}"
+          itemprop="logo">
+        </a>
+        {% if template.name == 'index' %}
+          <h1 class="visually-hidden">{{ shop.name }}</h1>
+        {% endif %}
+      {% else %}
+        {% if template.name == 'index' %}
+          <h1 class="site-header__site-name">
+            <a href="/" itemprop="url">{{ shop.name }}</a>
+          </h1>
+        {% else %}
+          <a href="/" class="site-header__site-name h1" itemprop="url">
+            {{ shop.name }}
+          </a>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+  {% unless section.settings.tagline == blank %}
+    <div class="grid__item medium-up--text-right small--text-center">
+      <div class="tagline">
+        {{ section.settings.tagline }}
+      </div>
+    </div>
+  {% endunless %}
+</header>
+
+{% schema %}
+  {
+    "name": "Header",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Logo"
+      },
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo image"
+      },
+      {
+        "type": "text",
+        "id": "logo_max_width",
+        "label": "Custom logo width (in pixels)",
+        "default": "150"
+      },
+      {
+        "type": "header",
+        "content": "Tagline"
+      },
+      {
+        "type": "text",
+        "id": "tagline",
+        "label": "Text",
+        "info": "Use basic HTML to format text"
+      }
+    ]
+  }
+{% endschema %}
